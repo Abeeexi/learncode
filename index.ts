@@ -1,11 +1,11 @@
-import express from "express";
-import { PrismaClient } from "@prisma/client";
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
 
 function main() {
   const prisma = new PrismaClient();
   const app = express();
 
-  app.get("/", async (req, res) => {
+  app.get('/', async (req, res) => {
     // prisma.user.findUnique({
     //   where: {
     //     id: 1,
