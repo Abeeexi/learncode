@@ -37,3 +37,18 @@ model User {
   Post    Post[]
   Profile Profile?
 }
+
+//id title content comment
+model Article {
+  id       Int       @id @default(autoincrement())
+  title    String    @db.VarChar(255)
+  content  String?   @db.VarChar(255)
+  comments Comment[]
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  data      String  @db.Char(255)
+  Article   Article @relation(fields: [articleId], references: [id])
+  articleId Int
+}
