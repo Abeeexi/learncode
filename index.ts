@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import z from 'zod';
 
 function main() {
   const prisma = new PrismaClient();
@@ -15,33 +16,114 @@ function main() {
     const users = prisma.user.findMany();
     res.send(users);
   });
-  app.get("/article", async (req, res) => {
-    const data = req.query;
-    const article = await prisma.article.findMany();
-    res.send(article);
+
+  // TODO: JOIN operations, comments inside articles
+  app.get('/articles', async (req, res) => {
+    const articles = await prisma.article.findMany();
+    res.send(articles);
   });
 
-  app.get("/comment", async (req, res) => {
-    const data = req.query;
-    const comment = await prisma.comment.findMany();
-    res.send(comment);
+  app.get('/comments', async (req, res) => {
+    // validate data
+    // data {articleId: xxx}
+    const comments = await prisma.comment.findMany();
+
+    res.send(comments);
   });
 
-  app.post("/article", async (req, res) => {
-    const data = req.body;
+  // title
+  // content
+  // create article
+  const createArticleSchema = z.object({
+    title: z.string().min(1),
+    content: z.string(),
+  });
+  app.post('/article', async (req, res) => {
+    // validation
+    let createArticleInput;
+    try {
+      createArticleInput = createArticleSchema.parse(req.body);
+    } catch (err) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const { content, title } = createArticleInput;
     const article = await prisma.article.create({
-      data: { title: data.title, content: data.content },
+      data: {
+        title,
+        content,
+      },
     });
+
     res.send(article);
   });
 
-  app.post("/comment", async (req, res) => {
-    const data = req.body;
-    const comment = await prisma.comment.create({
-      data: { data: data.data },
-      Article: 
-    });
-    res.send(comment);
+  app.put('/article', async (req, res) => {
+    // validation
+    // data { id: xxx, title: xxx, content: xxx }
+    //
+    // check if article exist
+    // const exist = await prisma.article.findFirst({ where: { id:  } });
+
+    // exist = {id: 'asdfsd'} || undefined
+    if (exist === undefined) {
+      // if (!exist)
+      res.sendStatus(400);
+      return;
+    }
+
+    //
+    // if exist -> update new data
+  });
+
+  app.post('/comment', async (req, res) => {
+    // validation
+    // data { articleId: xxx, data: xxx }
+    //
+    // check article exist
+    //
+    // create comment
+    //
+    res.send('hello');
+  });
+
+  app.put('/comment', async (req, res) => {
+    // validation
+    // data { id: xxx, data: xxx }
+    //
+    // check comment exist
+    //
+    // change comment data
+    //
+    res.send('hello');
+  });
+
+  app.delete('/comment', (req, res) => {
+    // validation
+    //
+    // data { id: xxx }
+    //
+    // delete comment
+    //
+    res.send();
+  });
+
+  // TODO: user authentication
+  // TODO: separate schema validate
+  // TODO: handle async/await fail
+  // TODO: transaction
+  app.delete('/article', (req, res) => {
+    // validation
+    // data { id: xxx }
+    //
+    // check if article exist
+    //
+    // delete all comments of requested article's id
+    //
+    // delete article
+    //
+    res.send();
   });
 
   const port = 3000;
@@ -49,4 +131,5 @@ function main() {
     console.log(`Listen at localhost:${port}`);
   });
 }
+
 main();
